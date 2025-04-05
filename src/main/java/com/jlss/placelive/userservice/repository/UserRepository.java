@@ -1,0 +1,18 @@
+package com.jlss.placelive.userservice.repository;
+
+import com.jlss.placelive.userservice.entity.User;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+
+@Primary
+@Repository
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+    List<User> findByMobileNumberIn(List<String> mobileNumbers);
+
+}
