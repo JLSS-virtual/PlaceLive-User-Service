@@ -29,6 +29,12 @@
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
     <dependencies>
         <!-- Core application development-->
 

@@ -4,9 +4,12 @@ import com.jlss.placelive.commonlib.dto.PaginatedDto;
 import com.jlss.placelive.commonlib.dto.ResponseDto;
 import com.jlss.placelive.commonlib.dto.ResponseListDto;
 import com.jlss.placelive.commonlib.service.impl.GenericServiceImpl;
+import com.jlss.placelive.userservice.client.SearchServiceUserClient;
+import com.jlss.placelive.userservice.dto.UserDto;
 import com.jlss.placelive.userservice.entity.User;
 import com.jlss.placelive.userservice.entity.UserRegion;
 import com.jlss.placelive.userservice.kafka.UserEventProducer;
+import com.jlss.placelive.userservice.mapper.UserMapper;
 import com.jlss.placelive.userservice.repository.UserRegionRepository;
 import com.jlss.placelive.userservice.repository.UserRepository;
 import com.jlss.placelive.userservice.service.UserService;
@@ -26,11 +29,14 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private UserEventProducer userEventProducer;
+    private SearchServiceUserClient searchServiceUserClient;
+
+    private final UserMapper userMapper;
 
 
-    public UserServiceImpl(@Qualifier("userRepository") UserRepository repository) {
+    public UserServiceImpl(@Qualifier("userRepository") UserRepository repository, UserMapper userMapper) {
         super(repository);
+        this.userMapper = userMapper;
     }
     public Integer getTotalCount() {
         return (int) repository.count(); // Assuming you use Spring Data JPA
@@ -45,8 +51,10 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
        UserRegion region = regionRepository.save(user.getUserRegion());
         user.setUserRegion(region);
         User savedUser = super.createObject(user);
-        // sending kafka event to Elastic search
-        userEventProducer.sendUserEvent(savedUser);
+        // sending rest request  to Elastic search
+        // 1st need to map
+        UserDto userDto = userMapper.toDto(user);
+        searchServiceUserClient.postUserToSearchService(userDto);
         return new ResponseDto<>(true, savedUser,null,null);
     }
 
@@ -59,8 +67,14 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         UserRegion region = regionRepository.save(user.getUserRegion());
         user.setUserRegion(region);
         User savedUser = super.objectsIdPut(Math.toIntExact(id),user);
-        // sending kafka event to Elastic search
-        userEventProducer.sendUserEvent(savedUser);
+        // 1st need to map
+        UserDto userDto = userMapper.toDto(user);
+        try {
+            searchServiceUserClient.putUserToSearchService(id,userDto);
+        }
+       catch (Exception e){
+          throw new RuntimeException();
+       }
         return new ResponseDto<>(true, savedUser,null,null);
     }
 
@@ -87,8 +101,12 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         // sending kafka event
         String OK = super.deleteObject(Math.toIntExact(id));
         if (Objects.equals(OK,"OK")) {
-            userEventProducer.sendDeleteUserEvent(id);
-
+            try{
+                searchServiceUserClient.deleteUserToSearchService(id);
+            }
+          catch (Exception e){
+                throw new RuntimeException();
+          }
         }
         return new ResponseDto<>(true,OK,null,null);
     }
