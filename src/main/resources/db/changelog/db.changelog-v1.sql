@@ -3,7 +3,7 @@
 --changeset Jeet:1
 --v1 : Creating high-level Database Schema for region and users
 
-CREATE TABLE region (
+CREATE TABLE If Not EXISTS region (
     id BIGINT NOT NULL AUTO_INCREMENT,
     country VARCHAR(255),
     state VARCHAR(255),
@@ -12,7 +12,7 @@ CREATE TABLE region (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255),
     bio VARCHAR(255) DEFAULT '',

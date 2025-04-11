@@ -2,7 +2,6 @@ package com.jlss.placelive.userservice.controller;
 
 import com.jlss.placelive.commonlib.dto.ResponseDto;
 import com.jlss.placelive.commonlib.dto.ResponseListDto;
-import com.jlss.placelive.userservice.dto.MobileNumberRequestDto;
 import com.jlss.placelive.userservice.entity.User;
 import com.jlss.placelive.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +32,24 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/friendrequests/{id}")
+    public ResponseEntity<ResponseListDto<List<User>>> getUserFriendRequests(@PathVariable Long id) {
+        ResponseListDto<List<User>> response = userService.getUserFriendRequests(id);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/removerequest")
+    public ResponseEntity<ResponseDto<String>> removeFriendRequest(@RequestParam Long removerId,@RequestParam Long requestId) {
+        ResponseDto<String> response = userService.removeFriendRequest(removerId,requestId);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDto<User>> getUserById(@PathVariable Long id) {
         ResponseDto<User> response = userService.getUserById(id);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/login")
+    public ResponseEntity<ResponseDto<User>> loginUserByUserId(@RequestParam Long id) {
+        ResponseDto<User> response = userService.loginUserByUserId(id);
         return ResponseEntity.ok(response);
     }
 
@@ -58,6 +72,17 @@ public class UserController {
         ResponseDto<String> response = userService.deleteUser(id);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/request")// this will be sent by who wants to add friend or mae a friend request.
+    public ResponseEntity<ResponseDto<String>> addToFollowingList(@RequestParam Long friendRequestId,@RequestParam Long toUserId) {
+        ResponseDto<String> response = userService.addToFollowingList(friendRequestId,toUserId);
+        return ResponseEntity.ok(response);
+    }// this following is equivalent to requests . and once accepted it will add to the followers list. no following list
+
+    @PostMapping("/followers")
+    public ResponseEntity<ResponseDto<String>> addToFollowersList(@RequestParam Long followerId,@RequestParam Long toUserId) {
+        ResponseDto<String> response = userService.addToFollowersList(followerId,toUserId);
+        return ResponseEntity.ok(response);
+    }// this was called by who accepted the request
 
     @PostMapping("/by-mobile-numbers")
     public ResponseEntity<ResponseListDto<List<User>>> getUsersByMobileNumbers(

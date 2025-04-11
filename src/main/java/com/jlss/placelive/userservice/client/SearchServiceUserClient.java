@@ -26,7 +26,7 @@ public class SearchServiceUserClient {
      * 3.for deletion
      * **/
     public void  postUserToSearchService(UserDto userDto){
-        String url = "http://localhost:8085/placelive-search-service/v1/api/elasticSearch/user";
+        String url = "http://localhost:8084/placelive-search-service/v1/api/elasticSearch/user";
 
         restTemplate.exchange(
                 url,
@@ -36,7 +36,7 @@ public class SearchServiceUserClient {
         );
     }
     public void putUserToSearchService(Long userId,UserDto userDto){
-        String url = "http://localhost:8085/plcaelive-search-service/v1/api/elasticSearch/user";
+        String url = "http://localhost:8084/plcaelive-search-service/v1/api/elasticSearch/user";
 
         restTemplate.exchange(
                 url,
@@ -49,7 +49,7 @@ public class SearchServiceUserClient {
     }
     //TODO use atleast resposentity to track that the services are what returing
     public  void deleteUserToSearchService(Long userId){
-        String url = "http://localhost:8085/placelive-search-service/v1/api/elasticSearch/user/{userId}";
+        String url = "http://localhost:8084/placelive-search-service/v1/api/elasticSearch/user/{userId}";
         restTemplate.exchange(
                 url,
                 HttpMethod.DELETE,
