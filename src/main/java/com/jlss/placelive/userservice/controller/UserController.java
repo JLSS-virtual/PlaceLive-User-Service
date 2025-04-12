@@ -37,6 +37,11 @@ public class UserController {
         ResponseListDto<List<User>> response = userService.getUserFriendRequests(id);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/friends/{id}")
+    public ResponseEntity<ResponseListDto<List<User>>> getAllFriends(@PathVariable Long id) {
+        ResponseListDto<List<User>> response = userService.getAllFriends(id);
+        return ResponseEntity.ok(response);
+    }
     @PostMapping("/removerequest")
     public ResponseEntity<ResponseDto<String>> removeFriendRequest(@RequestParam Long removerId,@RequestParam Long requestId) {
         ResponseDto<String> response = userService.removeFriendRequest(removerId,requestId);

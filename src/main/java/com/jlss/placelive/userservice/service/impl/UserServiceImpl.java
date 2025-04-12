@@ -51,6 +51,16 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         }
         return new ResponseListDto<>(true,friendList,null,null,null);
     }
+    @Override
+    public ResponseListDto<List<User>> getAllFriends(Long id){
+        List<User> friendList = new ArrayList<>();
+        // now get all the usersByFollowIngId
+        for (Long requestId : userRepository.findById(id).get().getFollowers()){
+            // now get all users by user id
+            friendList.add(userRepository.findById(requestId).get());
+        }
+        return new ResponseListDto<>(true,friendList,null,null,null);
+    }
 
     @Override
     public ResponseDto<String> removeFriendRequest(Long userId, Long requestId) {

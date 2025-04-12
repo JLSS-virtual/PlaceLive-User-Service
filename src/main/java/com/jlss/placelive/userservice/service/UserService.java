@@ -29,4 +29,6 @@ public interface UserService {
     ResponseDto<String> removeFriendRequest(Long id, Long requestId);
 
     ResponseDto<User> loginUserByUserId(Long id);
+
+    ResponseListDto<List<User>> getAllFriends(Long id);
 }
