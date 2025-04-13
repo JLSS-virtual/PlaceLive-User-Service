@@ -13,6 +13,8 @@ import com.jlss.placelive.userservice.mapper.UserMapper;
 import com.jlss.placelive.userservice.repository.UserRegionRepository;
 import com.jlss.placelive.userservice.repository.UserRepository;
 import com.jlss.placelive.userservice.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import java.util.*;
 
 @Service
 public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> implements UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserRegionRepository regionRepository;
@@ -73,7 +76,8 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
             if (Objects.equals(followingId, requestId)) {
                 iterator.remove(); // ✅ Avoids ConcurrentModificationException
             }
-        }//TODO what it acctually does what is iterator.
+        }
+        //TODO what it acctually does what is iterator.
 
         user.setFollowing(friendList);
         super.objectsIdPut(Math.toIntExact(userId), user);
@@ -92,29 +96,26 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
             user.setUserRegion(regionRepository.findById(1L).orElseThrow(
                     () -> new IllegalArgumentException("Default Region Not Found")));
         }
-       UserRegion region = regionRepository.save(user.getUserRegion());
+
+        UserRegion region = regionRepository.save(user.getUserRegion());
         user.setUserRegion(region);
 
-        /**
-         * When a new user creates add himeself as his first follower so he can see himself atleast on the places he was.
-         * **/
-        // Save user first to get generated ID
-        User savedUser = super.createObject(user);
+        // Step 3: Update user again
+       User savedUser = userRepository.save(user);
 
-        // Now we can set the followers including the user's own ID
-        List<Long> followers = new ArrayList<>();
-        followers.add(savedUser.getId());
-        savedUser.setFollowers(followers);
+// Debug log: Verify the final saved user ID.
 
-        // Save again to update followers
-        savedUser = userRepository.save(savedUser);
+        logger.info("Final saved user ID (should be 12): {}", savedUser.getId());
 
-        // sending rest request  to Elastic search
-        // 1st need to map
+// Map after confirming the ID value:
         UserDto userDto = userMapper.toDto(savedUser);
+        logger.info("Mapped UserDto ID: {}", userDto.getId());
+
         searchServiceUserClient.postUserToSearchService(userDto);
-        return new ResponseDto<>(true, savedUser,null,null);
+
+        return new ResponseDto<>(true, savedUser, null, null);
     }
+
 
     @Override
     public ResponseDto<User> updateUser(Long id, User user) {
@@ -207,14 +208,14 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
 
     @Override
     public ResponseDto<String> addToFollowersList(Long accepterId, Long toUserId) {
-        Optional<User> userOpt = userRepository.findById(accepterId);// the user who accepted the request
+        Optional<User> accepteuser = userRepository.findById(accepterId);// the user who accepted the request
         Optional<User> touser =  userRepository.findById(toUserId);// the user who sended the rquwst . we need to add this acepter id to his followers lsi too
 
-        if (userOpt.isEmpty()||touser.isEmpty()) {
+        if (accepteuser.isEmpty()||touser.isEmpty()) {
             return new ResponseDto<>(false,null, ErrorCode.ERR404.getCode(), null);
         }
 
-        User accepterUser = userOpt.get();
+        User accepterUser = accepteuser.get();
         User senderUser = touser.get();  // ✅ Correct: this is the user who sent the request
 
         List<Long> accepterUserFollowers = accepterUser.getFollowers();
@@ -240,7 +241,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         }
         if (senderUserFollowers == null ) {
             senderUserFollowers = new ArrayList<>();
-            senderUserFollowers.add(accepterId);
+            senderUserFollowers.add(toUserId);
             senderUser.setFollowers(senderUserFollowers);
         } else {
             if (!senderUserFollowers.contains(accepterId)) {
@@ -253,9 +254,24 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         }
         // now when a request was accepted we need to remove it from following list too.
         removeFriendRequest(accepterId,toUserId);
-        super.objectsIdPut(Math.toIntExact(toUserId), senderUser);
-        super.objectsIdPut(Math.toIntExact(toUserId), accepterUser);
-
+            User senderUserSaved = super.objectsIdPut(Math.toIntExact(toUserId), senderUser);
+        removeFriendRequest(toUserId,accepterId);
+        User acceepterUser = super.objectsIdPut(Math.toIntExact(accepterId), accepterUser);
+        // 1st need to map
+        UserDto senderUserSavedDto = userMapper.toDto(senderUserSaved);
+        User accepterUsesrSaved = super.objectsIdPut(Math.toIntExact(toUserId), accepterUser);
+        // 1st need to map
+        UserDto accepterUsesrSavedDto = userMapper.toDto(acceepterUser);
+        // now upadting from serarhc service too
+        try {
+            // for sender
+            searchServiceUserClient.putUserToSearchService(senderUserSaved.getId(),senderUserSavedDto);
+            // for sender
+            searchServiceUserClient.putUserToSearchService(accepterUsesrSaved.getId(),accepterUsesrSavedDto);
+        }
+        catch (Exception e){
+            throw new RuntimeException();
+        }
         return new ResponseDto<>(true, ErrorCode.OK200.getCode(), "Added to followers list", null);
     }
 

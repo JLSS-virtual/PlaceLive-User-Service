@@ -35,18 +35,18 @@ public class SearchServiceUserClient {
                 new ParameterizedTypeReference<Void>(){}
         );
     }
-    public void putUserToSearchService(Long userId,UserDto userDto){
-        String url = "http://localhost:8084/plcaelive-search-service/v1/api/elasticSearch/user";
+    public void putUserToSearchService(Long userId, UserDto userDto){
+        String url = "http://localhost:8084/placelive-search-service/v1/api/elasticSearch/userupdate/{id}";
 
         restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 new HttpEntity<>(userDto),
-                new ParameterizedTypeReference<Void>() {
-                },
-                userId
+                new ParameterizedTypeReference<Void>() {},
+                userId // 👈 this maps to {id} in the URL
         );
     }
+
     //TODO use atleast resposentity to track that the services are what returing
     public  void deleteUserToSearchService(Long userId){
         String url = "http://localhost:8084/placelive-search-service/v1/api/elasticSearch/user/{userId}";
