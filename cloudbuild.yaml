@@ -1,0 +1,15 @@
+steps:
+  # Step 1: Build the JAR using Maven with JDK 17 from the Eclipse Temurin variant
+  - name: 'maven:3.9.1-eclipse-temurin-17'
+    args: ['mvn', 'clean', 'package']
+
+  # Step 2: Build the Docker image using the JAR produced in Step 1
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/theta-device-457014-c3/placelive-user-service', '.']
+
+  # Step 3: Push the Docker image to Google Container Registry (GCR)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/theta-device-457014-c3/placelive-user-service']
+
+images:
+  - 'gcr.io/theta-device-457014-c3/placelive-user-service'

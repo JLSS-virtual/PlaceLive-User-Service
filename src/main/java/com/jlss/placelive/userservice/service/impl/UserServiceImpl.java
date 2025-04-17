@@ -1,10 +1,10 @@
 package com.jlss.placelive.userservice.service.impl;
 
-import com.jlss.placelive.commonlib.dto.PaginatedDto;
-import com.jlss.placelive.commonlib.dto.ResponseDto;
-import com.jlss.placelive.commonlib.dto.ResponseListDto;
-import com.jlss.placelive.commonlib.enums.ErrorCode;
-import com.jlss.placelive.commonlib.service.impl.GenericServiceImpl;
+import com.jlss.placelive.userservice.commonlib.dto.PaginatedDto;
+import com.jlss.placelive.userservice.commonlib.dto.ResponseDto;
+import com.jlss.placelive.userservice.commonlib.dto.ResponseListDto;
+import com.jlss.placelive.userservice.commonlib.enums.ErrorCode;
+import com.jlss.placelive.userservice.commonlib.service.impl.GenericServiceImpl;
 import com.jlss.placelive.userservice.client.SearchServiceUserClient;
 import com.jlss.placelive.userservice.dto.UserDto;
 import com.jlss.placelive.userservice.entity.User;
@@ -93,8 +93,11 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
     @Override
     public ResponseDto<User> createUser(User user) {
         if (user.getUserRegion() == null) {
-            user.setUserRegion(regionRepository.findById(1L).orElseThrow(
-                    () -> new IllegalArgumentException("Default Region Not Found")));
+            user.getUserRegion().setId(1L);
+            user.getUserRegion().setCity("Na");
+            user.getUserRegion().setCountry("Na");
+            user.getUserRegion().setStreet("Na");
+            user.getUserRegion().setState("Na");
         }
 
         UserRegion region = regionRepository.save(user.getUserRegion());
@@ -111,7 +114,7 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         UserDto userDto = userMapper.toDto(savedUser);
         logger.info("Mapped UserDto ID: {}", userDto.getId());
 
-        searchServiceUserClient.postUserToSearchService(userDto);
+       // searchServiceUserClient.postUserToSearchService(userDto);
 
         return new ResponseDto<>(true, savedUser, null, null);
     }
@@ -128,12 +131,12 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         User savedUser = super.objectsIdPut(Math.toIntExact(id),user);
         // 1st need to map
         UserDto userDto = userMapper.toDto(user);
-        try {
-            searchServiceUserClient.putUserToSearchService(id,userDto);
-        }
-       catch (Exception e){
-          throw new RuntimeException();
-       }
+//        try {
+//        //    searchServiceUserClient.putUserToSearchService(id,userDto);
+//        }
+//       catch (Exception e){
+//          throw new RuntimeException();
+//       }
         return new ResponseDto<>(true, savedUser,null,null);
     }
 
@@ -159,14 +162,14 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
     public ResponseDto<String> deleteUser(Long id) {
         // sending kafka event
         String OK = super.deleteObject(Math.toIntExact(id));
-        if (Objects.equals(OK,"OK")) {
-            try{
-                searchServiceUserClient.deleteUserToSearchService(id);
-            }
-          catch (Exception e){
-                throw new RuntimeException();
-          }
-        }
+//        if (Objects.equals(OK,"OK")) {
+//            try{
+//                searchServiceUserClient.deleteUserToSearchService(id);
+//            }
+//          catch (Exception e){
+//                throw new RuntimeException();
+//          }
+//        }
         return new ResponseDto<>(true,OK,null,null);
     }
     // now the above ones are only crud orrianted operations but now from here are acctual game changers.
@@ -263,15 +266,15 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
         // 1st need to map
         UserDto accepterUsesrSavedDto = userMapper.toDto(acceepterUser);
         // now upadting from serarhc service too
-        try {
-            // for sender
-            searchServiceUserClient.putUserToSearchService(senderUserSaved.getId(),senderUserSavedDto);
-            // for sender
-            searchServiceUserClient.putUserToSearchService(accepterUsesrSaved.getId(),accepterUsesrSavedDto);
-        }
-        catch (Exception e){
-            throw new RuntimeException();
-        }
+//        try {
+//            // for sender
+//            searchServiceUserClient.putUserToSearchService(senderUserSaved.getId(),senderUserSavedDto);
+//            // for sender
+//            searchServiceUserClient.putUserToSearchService(accepterUsesrSaved.getId(),accepterUsesrSavedDto);
+//        }
+//        catch (Exception e){
+//            throw new RuntimeException();
+//        }
         return new ResponseDto<>(true, ErrorCode.OK200.getCode(), "Added to followers list", null);
     }
 

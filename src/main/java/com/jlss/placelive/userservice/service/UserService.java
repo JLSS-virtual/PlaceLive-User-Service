@@ -1,7 +1,7 @@
 package com.jlss.placelive.userservice.service;
 
-import com.jlss.placelive.commonlib.dto.ResponseDto;
-import com.jlss.placelive.commonlib.dto.ResponseListDto;
+import com.jlss.placelive.userservice.commonlib.dto.ResponseDto;
+import com.jlss.placelive.userservice.commonlib.dto.ResponseListDto;
 import com.jlss.placelive.userservice.entity.User;
 
 

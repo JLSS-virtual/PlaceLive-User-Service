@@ -1,7 +1,7 @@
 package com.jlss.placelive.userservice.controller;
 
-import com.jlss.placelive.commonlib.dto.ResponseDto;
-import com.jlss.placelive.commonlib.dto.ResponseListDto;
+import com.jlss.placelive.userservice.commonlib.dto.ResponseDto;
+import com.jlss.placelive.userservice.commonlib.dto.ResponseListDto;
 import com.jlss.placelive.userservice.entity.User;
 import com.jlss.placelive.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

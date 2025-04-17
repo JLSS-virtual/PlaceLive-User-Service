@@ -30,21 +30,15 @@
 		<java.version>17</java.version>
 	</properties>
     <repositories>
+        <!-- Google Maven Repository -->
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>google-maven-repo</id>
+            <url>https://maven-central.storage.googleapis.com</url>
         </repository>
+
     </repositories>
+
     <dependencies>
-        <!-- Core application development-->
-
-        <dependency>
-            <groupId>com.jlss.placelive</groupId>
-            <artifactId>placelive-common-library</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- 2.Core application development
              for building REST APIs and web applications.-->
         <dependency>
@@ -81,7 +75,7 @@
             JSON serialization and deserialization-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>Jackson-databind</artifactId>
+            <artifactId>jackson-databind</artifactId>
             <version>2.15.0</version>
         </dependency>
         <!--OpenAPI jackson nullable:
@@ -155,6 +149,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.cloud.sql</groupId>
+            <artifactId>mysql-socket-factory-connector-j-8</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+
+
+
 
     </dependencies>
 
