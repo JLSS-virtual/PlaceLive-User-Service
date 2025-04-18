@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.synth.Region;
 import java.util.*;
 
 @Service
@@ -93,15 +94,15 @@ public class UserServiceImpl extends GenericServiceImpl<User, UserRepository> im
     @Override
     public ResponseDto<User> createUser(User user) {
         if (user.getUserRegion() == null) {
-            user.getUserRegion().setId(1L);
-            user.getUserRegion().setCity("Na");
-            user.getUserRegion().setCountry("Na");
-            user.getUserRegion().setStreet("Na");
-            user.getUserRegion().setState("Na");
+          UserRegion regionNa = new UserRegion();
+          regionNa.setId(1L);
+          regionNa.setCountry("NA");
+          regionNa.setState("NA");
+          regionNa.setCity("Na");
+          regionNa.setStreet("Na");
+            UserRegion region = regionRepository.save(regionNa);
+            user.setUserRegion(region);
         }
-
-        UserRegion region = regionRepository.save(user.getUserRegion());
-        user.setUserRegion(region);
 
         // Step 3: Update user again
        User savedUser = userRepository.save(user);

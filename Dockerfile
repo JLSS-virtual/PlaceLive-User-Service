@@ -1,8 +1,9 @@
 # Use official OpenJDK base image
 FROM openjdk:17
 
-# Metadata (optional)
+# Metadata
 LABEL maintainer="solan"
+
 
 # Build-time argument to copy the JAR
 ARG JAR_FILE=target/*.jar
@@ -11,4 +12,6 @@ ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 
 # Define the entrypoint
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# Use a shell form so $PORT is expanded at runtime
+ENTRYPOINT ["sh","-c","java -Dserver.port=$PORT -jar /app.jar"]
+

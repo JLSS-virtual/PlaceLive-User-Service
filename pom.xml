@@ -45,6 +45,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
 
         <!--Database & persistence-->
 
@@ -161,7 +165,7 @@
     </dependencies>
 
     <build>
-        <finalName>placelive-geofencing</finalName>
+        <finalName>placelive-user-service</finalName>
         <plugins>
 
             <plugin>
